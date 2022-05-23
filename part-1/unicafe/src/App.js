@@ -18,21 +18,28 @@ const Statistics = ({ statistics }) => {
   if (!statistics.total) return 'No Feedback given'
   return (
     <div>
-      <StatisticsLine text="good" value={statistics.good} />
-      <StatisticsLine text="neutral" value = {statistics.neutral} />
-      <StatisticsLine text="bad" value = {statistics.bad} />
-      <StatisticsLine text="total" value = {statistics.total} />
-      <StatisticsLine text="average" value = {average} />
-      <StatisticsLine text="positive" value = {positivePercent} />
+      <table>
+        <tbody>
+          <StatisticsTableRow text="good" value={statistics.good} />
+          <StatisticsTableRow text="neutral" value = {statistics.neutral} />
+          <StatisticsTableRow text="bad" value = {statistics.bad} />
+          <StatisticsTableRow text="total" value = {statistics.total} />
+          <StatisticsTableRow text="average" value = {average} />
+          <StatisticsTableRow text="positive" value = {positivePercent} />
+        </tbody>
+      </table>
+     
     </div>
   )
 }
 
-const StatisticsLine = ({ text, value }) => {
+
+const StatisticsTableRow = ({ text, value }) => {
   return (
-    <>
-    <p>{text} {value}</p>
-    </>
+      <tr>
+        <td>{text}</td>
+        <td>{value}</td>
+      </tr>
   )
 }
 
