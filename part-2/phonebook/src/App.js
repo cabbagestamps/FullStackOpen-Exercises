@@ -19,8 +19,9 @@ const App = () => {
   ]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [search, setSearch] = useState('')
-
+  //const [search, setSearch] = useState('')
+  const [foundPersons, setFoundPersons] = useState()
+  const [searched, setSearched] = useState(false)
   
   
   const addPerson = (event) => {
@@ -44,6 +45,7 @@ const App = () => {
     setPersons(persons.concat(personObject))
     setNewNumber('')
     setNewName('')
+    setSearched(false)
   }
 
   const handleNameFieldChange = (event) => {
@@ -53,12 +55,13 @@ const App = () => {
   const handleNumberFieldChange = (event) => {
     setNewNumber(event.target.value)
   }
-// not using search, cant undo search
+
+
   const handleSearchFieldChange = (event) => {
     const searchData = event.target.value
     console.log(searchData)
     
-    setSearch(searchData)
+    //setSearch(searchData)
   
     const names = persons.map((person) =>  { 
       return person.name
@@ -71,10 +74,16 @@ const App = () => {
       return filteredNames.includes(person.name)
     })
     console.log(searchedPersons)
-    setPersons(searchedPersons)
-     
-  }
+    //setPersons(searchedPersons)
 
+    setFoundPersons(searchedPersons)
+    setSearched(true)
+  }
+// serach works pretty well, but new people dont show up when added, but do when search updates
+  const peopleToShow = searched ? foundPersons : persons;
+  console.log(foundPersons);
+  console.log(persons);
+  console.log(peopleToShow);
 
   return (
     <div>
@@ -102,8 +111,7 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-
-      {persons.map(person => 
+      {peopleToShow.map(person => 
         <Person key ={person.id} name={person.name} number={person.number}/>
       )}
       ...
