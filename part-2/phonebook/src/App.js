@@ -1,13 +1,49 @@
 import { useState } from 'react'
 
-const Person = (props) => {
+const Header = ({ text }) => <h1>{text}</h1>;
+
+const Person = (props) => <p>{props.name} {props.number}</p>
+
+
+const Persons = ({ peopleToShow }) => {
   return (
-  <>
-  <p>{props.name} {props.number}</p>
-  </>
+    <>
+    {peopleToShow.map(person => 
+      <Person key ={person.id} name={person.name} number={person.number}/>
+    )}
+    </>
   )
 }
 
+const SearchBar = ({ handleSearchFieldChange }) => {
+  return (
+    <div>
+        search: <input onChange={handleSearchFieldChange} />
+    </div>
+  )
+}
+
+const PersonForm = ({newName, newNumber, addPerson, handleNameFieldChange, handleNumberFieldChange}) => {
+  return (
+    <form onSubmit={addPerson}>
+        <div>
+          name: <input 
+                value={newName}
+                onChange={handleNameFieldChange}
+                />
+        </div>
+        <div>
+          number: <input 
+                  value={newNumber}
+                  onChange={handleNumberFieldChange}
+                  />
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+      </form>
+  )
+}
 
 
 const App = () => {
@@ -79,7 +115,7 @@ const App = () => {
     setFoundPersons(searchedPersons)
     setSearched(true)
   }
-// serach works pretty well, but new people dont show up when added, but do when search updates
+
   const peopleToShow = searched ? foundPersons : persons;
   console.log(foundPersons);
   console.log(persons);
@@ -87,33 +123,17 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
-      <div>
-        search: <input 
-                onChange={handleSearchFieldChange}
-                />
-      </div>
-      <form onSubmit={addPerson}>
-        <div>
-          name: <input 
-                value={newName}
-                onChange={handleNameFieldChange}
-                />
-        </div>
-        <div>
-          number: <input 
-                  value={newNumber}
-                  onChange={handleNumberFieldChange}
-                  />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      {peopleToShow.map(person => 
-        <Person key ={person.id} name={person.name} number={person.number}/>
-      )}
+      <Header text='PhoneBook' />
+      <SearchBar handleSearchFieldChange={handleSearchFieldChange} />
+      <Header text='Add a person' />
+      <PersonForm newName={newName}
+                  newNumber={newNumber}
+                  handleNameFieldChange={handleNameFieldChange}
+                  handleNumberFieldChange={handleNumberFieldChange}
+                  addPerson={addPerson}
+      />
+      <Header text='Numbers' />
+      <Persons peopleToShow={peopleToShow} />
       ...
     </div>
   )
