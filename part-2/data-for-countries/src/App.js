@@ -2,8 +2,18 @@ import { useState, useEffect } from 'react'
 import './App.css';
 import axios from 'axios'
 
+// we were going to pass the state down i think, cant actually remember how it was going to help
+const Country = ({ country }) => {
+  const [buttonPress, setButtonPress] = useState(false)
+  return (
+    <>
+      <li>{country.name.common}</li>
+      <Button  text='Show'  country={country}/>
+    </>
+  
+  )
 
-const Country = ({ country }) => <li>{country.name.common}</li>
+} 
 
 const Header = ({ text }) => <h1>{text}</h1>;
 
@@ -24,19 +34,23 @@ const CountriesTable = ({ countries, search }) => {
       </ul> 
       )
   }
-  if (filteredCountries.length == 1) {
+  if (filteredCountries.length === 1) {
     return (
       <CountryDetail country={filteredCountries[0]} />
     )
   }
-
-    
-
 }
+
+const Button = ({ handleClick, text}) => (
+  <button onClick={handleClick}>
+    {text}
+  </button>
+)
+
+
 
 
  const CountryDetail = ({ country }) => {
-   
   return (
     <div>
       <Header text={country.name.common}  />
@@ -46,9 +60,8 @@ const CountriesTable = ({ countries, search }) => {
       <ul>
         {Object.values(country.languages).map(lang => <li>{lang}</li>)}
       </ul>
-      <img src={country.flags.png} /> 
+      <img src={country.flags.png} alt="flag"/> 
     </div>
-    
   )
  }
 
@@ -64,15 +77,11 @@ const SearchBar = ({ handleSearchFieldChange }) => {
 }
 
 
-// i belive its a problem with the inital state of countries, and trying to functions etc on an empty array
-// posiibly fixed by putting it inside a component, or finding soething else to set as initial state
-// if you type in something quick before it realises you can fix it, then removing serach brings up countries
-// tho i suppose the application should be displaying no countries until searched for
-
 
 const  App = () => {
-const [countries, setCountries] = useState([])
-const [search, setSearch] = useState('')
+
+  const [countries, setCountries] = useState([])
+  const [search, setSearch] = useState('')
 
 
   useEffect(() => {
@@ -82,16 +91,6 @@ const [search, setSearch] = useState('')
         setCountries(response.data)
       })
   }, [])
-  //console.log(countries);
-  
- 
-//  <ul> 
-//     {countries.filter((country => {
-//       return country.name.common.toLowerCase().includes(search.toLowerCase())
-//     })).map(country => {  
-//       return <Country key={country.name.common} country={country} />
-//     })}
-//   </ul>
 
 
   const handleSearchFieldChange = (event) => {
