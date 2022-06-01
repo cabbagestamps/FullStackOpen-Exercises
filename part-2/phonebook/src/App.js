@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Header = ({ text }) => <h1>{text}</h1>;
 
@@ -47,19 +48,24 @@ const PersonForm = ({newName, newNumber, addPerson, handleNameFieldChange, handl
 
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   //const [search, setSearch] = useState('')
   const [foundPersons, setFoundPersons] = useState()
   const [searched, setSearched] = useState(false)
   
-  
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get("http://localhost:3001/persons")
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
+  console.log('render', persons.length, 'persons')
+
   const addPerson = (event) => {
     event.preventDefault()
 
@@ -95,7 +101,7 @@ const App = () => {
 
   const handleSearchFieldChange = (event) => {
     const searchData = event.target.value
-    console.log(searchData)
+    //console.log(searchData)
     
     //setSearch(searchData)
   
@@ -105,11 +111,11 @@ const App = () => {
     const filteredNames = names.filter((string) => {
       return string.toLowerCase().includes(searchData.toLowerCase())
     })
-    console.log(filteredNames);
+   // console.log(filteredNames);
     const searchedPersons = persons.filter((person) => {
       return filteredNames.includes(person.name)
     })
-    console.log(searchedPersons)
+    //console.log(searchedPersons)
     //setPersons(searchedPersons)
 
     setFoundPersons(searchedPersons)
@@ -117,9 +123,9 @@ const App = () => {
   }
 
   const peopleToShow = searched ? foundPersons : persons;
-  console.log(foundPersons);
-  console.log(persons);
-  console.log(peopleToShow);
+  //console.log(foundPersons);
+  //console.log(persons);
+  //console.log(peopleToShow);
 
   return (
     <div>
