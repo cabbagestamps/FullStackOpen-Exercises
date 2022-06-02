@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react'
 import './App.css';
 import axios from 'axios'
 
-// we were going to pass the state down i think, cant actually remember how it was going to help
-const Country = ({ country }) => {
-  const [buttonPress, setButtonPress] = useState(false)
+
+const Country = ({ country, setSearch }) => {
   return (
     <>
       <li>{country.name.common}</li>
-      <Button  text='Show'  country={country}/>
+        <Button text="Show detail" handleClick={() => setSearch(country.name.common)}/>
     </>
   
   )
@@ -18,25 +17,24 @@ const Country = ({ country }) => {
 const Header = ({ text }) => <h1>{text}</h1>;
 
 
-const CountriesTable = ({ countries, search }) => {
+const CountriesTable = ({ countries, search, setSearch}) => {
   const filteredCountries = countries.filter((country => {
     return country.name.common.toLowerCase().includes(search.toLowerCase())
   }))
-  console.log(filteredCountries);
   console.log(filteredCountries.length);
   if (filteredCountries.length > 10) {return <p>Too many countries</p>}
   if (filteredCountries.length > 1) {
     return (
       <ul>
           {filteredCountries.map(country => {  
-           return <Country key={country.name.common} country={country} />
+           return <Country key={country.name.common} country={country} setSearch={setSearch}/>
           })}
       </ul> 
       )
   }
   if (filteredCountries.length === 1) {
     return (
-      <CountryDetail country={filteredCountries[0]} />
+      <CountryDetail  country={filteredCountries[0]} />
     )
   }
 }
@@ -58,7 +56,7 @@ const Button = ({ handleClick, text}) => (
       <p>Area: {country.area}</p>
       <h2>Languages:</h2>
       <ul>
-        {Object.values(country.languages).map(lang => <li>{lang}</li>)}
+        {Object.values(country.languages).map(lang => <li>{lang}</li>)} 
       </ul>
       <img src={country.flags.png} alt="flag"/> 
     </div>
@@ -101,11 +99,7 @@ const  App = () => {
   return (
     <div >
       <SearchBar handleSearchFieldChange={handleSearchFieldChange} />
-      <CountriesTable countries={countries} search={search} />
-      
-      
-      
-      
+      <CountriesTable countries={countries} search={search} setSearch={setSearch} />
     </div>
   );
 }
