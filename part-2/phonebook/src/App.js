@@ -1,16 +1,46 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import personService from './services/persons'
+
+
+
+const Button = ({ handleClick, text}) => (
+  <button onClick={handleClick}>
+    {text}
+  </button>
+)
 
 const Header = ({ text }) => <h1>{text}</h1>;
 
-const Person = (props) => <p>{props.name} {props.number}</p>
-
-
-const Persons = ({ peopleToShow }) => {
+const Person = ({person, removePerson}) => {
+  
   return (
     <>
-    {peopleToShow.map(person => 
-      <Person key ={person.id} name={person.name} number={person.number}/>
+    <p>{person.name} {person.number} </p>
+    <Button handleClick={() => removePerson(person.id)} text="Delete Contact" />
+    </>
+  )
+
+} 
+
+
+const Persons = ({ search, persons, removePerson }) => {
+  
+  const names = persons.map((person) =>  { 
+    return person.name
+  })
+  const filteredNames = names.filter((name) => {
+    return name.toLowerCase().includes(search.toLowerCase())
+  })
+ 
+  const searchedPersons = persons.filter((person) => {
+    return filteredNames.includes(person.name)
+  })
+  
+  return (
+    <>
+    {searchedPersons.map(person => 
+      <Person key ={person.id} person={person} removePerson={removePerson}/>
     )}
     </>
   )
@@ -51,20 +81,44 @@ const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  //const [search, setSearch] = useState('')
-  const [foundPersons, setFoundPersons] = useState()
-  const [searched, setSearched] = useState(false)
+  const [search, setSearch] = useState('')
+
   
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get("http://localhost:3001/persons")
+    personService
+      .getAll()
       .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+        setPersons(response)
       })
   }, [])
-  console.log('render', persons.length, 'persons')
+  
+
+  const removePerson = (id) => {
+    if (window.confirm(`Delete ${id}?`)) {
+      console.log(true)
+      personService
+      .remove(id)
+      .then(response => {
+        console.log(response);
+        setPersons(persons.filter((person) => {
+          return person.id !== id
+        }))
+      })
+    }
+  }
+
+  const updatePerson = (id) => {
+    const person = persons.find(person => person.id === id)
+    const changedPerson = {...person, number: newNumber}
+    console.log(changedPerson);
+    
+    personService
+      .update(id, changedPerson)
+      .then(returnedPerson => {
+        setPersons(persons.map(person => person.id !== id ? person : returnedPerson))
+      })
+  }
+
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -74,20 +128,28 @@ const App = () => {
     })
     
     if (names.includes(newName)) {
-      alert(`${newName} is already in use`)
+      if (window.confirm(`${newName} is already in the phonebook. Replace old number with new?`)) {
+        const updatingPerson = persons.find(person => person.name === newName)
+        updatePerson(updatingPerson.id)
+      }
       setNewName('')
+      setNewNumber('')
       return
     }
 
     const personObject = {
       name: newName,
       number: newNumber,
-      id: newName
+      id: persons.length
     }
-    setPersons(persons.concat(personObject))
-    setNewNumber('')
-    setNewName('')
-    setSearched(false)
+    axios
+    .post('http://localhost:3001/persons', personObject)
+    .then(response => {
+      console.log(response)
+      setPersons(persons.concat(personObject))
+      setNewNumber('')
+      setNewName('')
+    })
   }
 
   const handleNameFieldChange = (event) => {
@@ -100,32 +162,10 @@ const App = () => {
 
 
   const handleSearchFieldChange = (event) => {
-    const searchData = event.target.value
-    //console.log(searchData)
-    
-    //setSearch(searchData)
-  
-    const names = persons.map((person) =>  { 
-      return person.name
-    })
-    const filteredNames = names.filter((string) => {
-      return string.toLowerCase().includes(searchData.toLowerCase())
-    })
-   // console.log(filteredNames);
-    const searchedPersons = persons.filter((person) => {
-      return filteredNames.includes(person.name)
-    })
-    //console.log(searchedPersons)
-    //setPersons(searchedPersons)
-
-    setFoundPersons(searchedPersons)
-    setSearched(true)
+    setSearch(event.target.value)
   }
 
-  const peopleToShow = searched ? foundPersons : persons;
-  //console.log(foundPersons);
-  //console.log(persons);
-  //console.log(peopleToShow);
+  
 
   return (
     <div>
@@ -139,7 +179,7 @@ const App = () => {
                   addPerson={addPerson}
       />
       <Header text='Numbers' />
-      <Persons peopleToShow={peopleToShow} />
+      <Persons  persons={persons} search={search} removePerson={removePerson}/>
       ...
     </div>
   )
